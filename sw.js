@@ -1,5 +1,5 @@
 // Service Worker - 集站 PWA 离线缓存
-var CACHE_NAME = 'jizhan-pwa-v1';
+var CACHE_NAME = 'jizhan-pwa-v4';
 var CACHE_FILES = [
   './',
   './index.html',
