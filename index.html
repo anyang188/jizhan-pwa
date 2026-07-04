@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>集站 - 链接变导航</title>
+<meta name="description" content="粘贴链接，一键生成精美导航站">
+<meta name="theme-color" content="#4F6EF7">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container" id="container">
+  <!-- 顶部标题 -->
+  <div class="top-bar">
+    <div class="logo-area">
+      <div class="logo-left">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">集站</span>
+        <span class="logo-sub">链接变导航</span>
+      </div>
+      <div class="guide-btn" id="guideBtn">
+        <span class="guide-icon">📖</span>
+        <span class="guide-text">使用说明</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 网站设置 -->
+  <div class="settings-card">
+    <div class="form-group">
+      <label class="label">导航站名称</label>
+      <input class="input" id="siteTitle" placeholder="输入导航站名称" value="我的导航站">
+    </div>
+    <div class="form-group">
+      <label class="label">副标题（可选）</label>
+      <input class="input" id="siteSubtitle" placeholder="输入副标题" value="">
+    </div>
+    <div class="form-group">
+      <label class="label">背景主题</label>
+      <div class="theme-picker" id="themePicker"></div>
+    </div>
+  </div>
+
+  <!-- 链接输入区 -->
+  <div class="input-card">
+    <div class="card-header">
+      <span class="card-title">📋 粘贴你的链接</span>
+      <span class="card-hint">一行一个，或用逗号/换行分隔</span>
+    </div>
+    <textarea
+      class="link-input"
+      id="linkInput"
+      placeholder="在此粘贴链接，一行一个：&#10;示例1：只粘贴链接 https://github.com&#10;示例2：链接+中文名+分类 https://www.bilibili.com/ 哔哩哔哩（视频）&#10;示例3：链接+中文名 https://chat.deepseek.com DeepSeek AI助手"
+    ></textarea>
+    <div class="format-tip" id="formatTip">以上格式都可以 ✓ 输入后自动隐藏</div>
+    <div class="input-footer">
+      <span class="link-count" id="linkCount">0 个链接已解析</span>
+      <button class="btn-parse" id="parseBtn">开始生成</button>
+    </div>
+  </div>
+
+  <!-- 分类预览（动态渲染） -->
+  <div class="preview-card" id="previewCard" style="display:none;">
+    <div class="card-header">
+      <span class="card-title" id="previewTitle">📊 分类结果</span>
+      <span class="card-hint" id="previewHint"></span>
+    </div>
+    <div class="category-list" id="categoryList"></div>
+  </div>
+
+  <!-- 空状态 -->
+  <div class="empty-state" id="emptyState">
+    <span class="empty-icon">📦</span>
+    <span class="empty-text">粘贴链接开始生成你的导航站</span>
+  </div>
+
+  <!-- 底部操作 -->
+  <div class="bottom-actions" id="bottomActions" style="display:none;">
+    <button class="btn-export" id="exportBtn">📥 下载导航站文件</button>
+    <button class="btn-reset" id="resetBtn">🔄 重新开始</button>
+  </div>
+</div>
+
+<!-- 弹窗容器（动态渲染） -->
+<div id="modalContainer"></div>
+
+<script src="js/classifier.js"></script>
+<script src="js/htmlGenerator.js"></script>
+<script src="js/app.js"></script>
+<script>
+// 注册 Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').then(function(reg) {
+      console.log('SW registered:', reg.scope);
+    }).catch(function(err) {
+      console.log('SW registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
