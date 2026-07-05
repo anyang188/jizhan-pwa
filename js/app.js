@@ -412,7 +412,6 @@ var SAMPLE_LINKS = [
 function fillSample() {
   $('linkInput').value = SAMPLE_LINKS.join('\n');
   $('formatTip').style.display = 'none';
-  $('clearBtn').style.display = 'inline';
   updateLinkCount();
   showToast('已填入 ' + SAMPLE_LINKS.length + ' 个示例链接');
 }
@@ -735,7 +734,6 @@ function onReset() {
       $('linkCount').textContent = '实时检测 URL…';
       $('linkCount').style.color = 'var(--text-secondary)';
       $('formatTip').style.display = 'block';
-      $('clearBtn').style.display = 'none';
       $('parseBtn').disabled = false;
       $('parseBtn').innerHTML = '解析链接';
       $('parseBtn').style.opacity = '1';
@@ -831,10 +829,9 @@ function closeModal() {
 
 // ===== 事件绑定 =====
 function bindEvents() {
-  // 链接输入 - 实时计数 + 清空按钮显隐
+  // 链接输入 - 实时计数
   $('linkInput').addEventListener('input', function() {
     $('formatTip').style.display = this.value ? 'none' : 'block';
-    $('clearBtn').style.display = this.value ? 'inline' : 'none';
     updateLinkCount();
   });
 
