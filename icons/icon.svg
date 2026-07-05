@@ -6,8 +6,5 @@
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <text x="256" y="248" font-size="260" text-anchor="middle" dominant-baseline="central" fill="#fff">🔗</text>
-  <g transform="translate(470, 470) rotate(-45)">
-    <text x="0" y="0" font-size="52" font-weight="600" fill="#fff" text-anchor="end" dominant-baseline="central" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif">集站</text>
-  </g>
+  <text x="256" y="256" font-size="290" text-anchor="middle" dominant-baseline="central" fill="#fff">🔗</text>
 </svg>
