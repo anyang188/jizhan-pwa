@@ -252,6 +252,11 @@ body {
   color: var(--text);
 }
 
+.header-btns {
+  display: flex;
+  gap: 4px;
+}
+
 .btn-sample {
   font-size: 12px;
   color: var(--primary);

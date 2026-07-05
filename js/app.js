@@ -412,6 +412,7 @@ var SAMPLE_LINKS = [
 function fillSample() {
   $('linkInput').value = SAMPLE_LINKS.join('\n');
   $('formatTip').style.display = 'none';
+  $('clearBtn').style.display = 'inline';
   updateLinkCount();
   showToast('已填入 ' + SAMPLE_LINKS.length + ' 个示例链接');
 }
@@ -435,19 +436,27 @@ function updateLinkCount() {
   }, 200);
 }
 
-// ===== 解析链接 =====
+// ===== 清空输入 =====
+function onClearInput() {
+  $('linkInput').value = '';
+  $('clearBtn').style.display = 'none';
+  $('formatTip').style.display = 'block';
+  updateLinkCount();
+  showToast('输入已清空，预览数据保留');
+}
+
+// ===== 解析链接（合并模式） =====
 function onParse() {
   var text = $('linkInput').value.trim();
   if (!text) { showToast('请先粘贴链接'); return; }
 
-  // Loading 状态
   $('parseBtn').disabled = true;
   $('parseBtn').innerHTML = '⏳ 解析中…';
   $('parseBtn').style.opacity = '0.7';
 
   setTimeout(function() {
-    var sites = Classifier.parseLinks(text);
-    if (sites.length === 0) {
+    var newSites = Classifier.parseLinks(text);
+    if (newSites.length === 0) {
       showToast('未解析到有效链接', 'error');
       $('parseBtn').disabled = false;
       $('parseBtn').innerHTML = '解析链接';
@@ -455,12 +464,54 @@ function onParse() {
       return;
     }
 
-    var grouped = Classifier.groupByCategory(sites);
-    state.parsedCount = sites.length;
+    // 获取已有站点域名
+    var existingDomains = {};
+    if (state.hasParsed) {
+      state.classifiedData.forEach(function(cat) {
+        cat.sites.forEach(function(site) {
+          var d = Classifier.extractDomain(site.url);
+          existingDomains[d] = true;
+        });
+      });
+    }
+
+    // 过滤掉已存在的域名
+    var mergedSites = [];
+    if (state.hasParsed) {
+      // 先把旧的加进来
+      state.classifiedData.forEach(function(cat) {
+        cat.sites.forEach(function(site) {
+          mergedSites.push(site);
+        });
+      });
+    }
+    // 只添加新域名
+    var addedCount = 0;
+    newSites.forEach(function(site) {
+      var d = Classifier.extractDomain(site.url);
+      if (!existingDomains[d]) {
+        mergedSites.push(site);
+        addedCount++;
+      }
+    });
+
+    if (addedCount === 0 && state.hasParsed) {
+      showToast('所有链接都已存在，无新增');
+      $('parseBtn').disabled = false;
+      $('parseBtn').innerHTML = '解析链接';
+      $('parseBtn').style.opacity = '1';
+      return;
+    }
+
+    var grouped = Classifier.groupByCategory(mergedSites);
+    state.parsedCount = mergedSites.length;
     state.classifiedData = grouped;
     state.hasParsed = true;
 
-    $('linkCount').textContent = sites.length + ' 个链接已解析';
+    var msg = state.hasParsed && addedCount > 0
+      ? '合并完成，新增 ' + addedCount + ' 个'
+      : mergedSites.length + ' 个链接已解析';
+    $('linkCount').textContent = msg;
     $('parseBtn').disabled = false;
     $('parseBtn').innerHTML = '解析链接';
     $('parseBtn').style.opacity = '1';
@@ -468,7 +519,7 @@ function onParse() {
     renderClassifiedData();
     updatePreviewColors();
     showToast('解析成功', 'success');
-  }, 150); // 微延迟让 loading 状态可见
+  }, 150);
 }
 
 // ===== 导出 HTML =====
@@ -684,6 +735,7 @@ function onReset() {
       $('linkCount').textContent = '实时检测 URL…';
       $('linkCount').style.color = 'var(--text-secondary)';
       $('formatTip').style.display = 'block';
+      $('clearBtn').style.display = 'none';
       $('parseBtn').disabled = false;
       $('parseBtn').innerHTML = '解析链接';
       $('parseBtn').style.opacity = '1';
@@ -779,14 +831,18 @@ function closeModal() {
 
 // ===== 事件绑定 =====
 function bindEvents() {
-  // 链接输入 - 实时计数
+  // 链接输入 - 实时计数 + 清空按钮显隐
   $('linkInput').addEventListener('input', function() {
     $('formatTip').style.display = this.value ? 'none' : 'block';
+    $('clearBtn').style.display = this.value ? 'inline' : 'none';
     updateLinkCount();
   });
 
   // 填入示例
   $('sampleBtn').addEventListener('click', fillSample);
+
+  // 清空输入（保留预览）
+  $('clearBtn').addEventListener('click', onClearInput);
 
   // 解析按钮
   $('parseBtn').addEventListener('click', onParse);
