@@ -198,10 +198,14 @@ function renderClassifiedData() {
     return;
   }
 
+  // 计算总网站数
+  var totalSites = 0;
+  data.forEach(function(cat) { totalSites += cat.sites.length; });
+
   $('previewCard').style.display = 'block';
   $('emptyState').style.display = 'none';
   $('bottomActions').style.display = 'flex';
-  $('previewHint').textContent = data.length + ' 个分类';
+  $('previewHint').textContent = totalSites + ' 个站点 · ' + data.length + ' 个分类';
   $('previewCard').style.background = state.themeStyle.cardBg;
   $('previewTitle').style.color = state.themeStyle.text;
 
