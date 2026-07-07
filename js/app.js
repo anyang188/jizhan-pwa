@@ -558,7 +558,11 @@ function renderCheckToolbar(totalSites) {
         '<span class="check-progress-text" id="checkProgressText">0%</span>' +
       '</div>' +
       '<div class="check-filters">' + filterBtns + '</div>' +
-      (sFail + sUnknown + unchecked > 0 ? '<button class="btn-copy-failed" id="copyFailedBtn">📋 复制失效链接</button>' : '') +
+      '<div class="check-actions">' +
+        (sFail + sUnknown + unchecked > 0 ? '<button class="btn-copy-failed" id="copyFailedBtn">📋 复制失效链接</button>' : '') +
+        (sFail + sUnknown + unchecked > 0 ? '<button class="btn-isolate" id="isolateFailedBtn">隔离异常</button>' : '') +
+        (sFail + sUnknown + unchecked > 0 ? '<button class="btn-remove" id="removeFailedBtn">清理异常</button>' : '') +
+      '</div>' +
     '</div>';
 
   // 批量校验按钮
@@ -574,6 +578,18 @@ function renderCheckToolbar(totalSites) {
   var copyBtn = toolbar.querySelector('#copyFailedBtn');
   if (copyBtn) {
     copyBtn.addEventListener('click', copyFailedUrls);
+  }
+
+  // 隔离异常按钮
+  var isolateBtn = toolbar.querySelector('#isolateFailedBtn');
+  if (isolateBtn) {
+    isolateBtn.addEventListener('click', isolateFailedSites);
+  }
+
+  // 清理异常按钮
+  var removeBtn = toolbar.querySelector('#removeFailedBtn');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', removeFailedSites);
   }
 
   // 筛选按钮
@@ -691,6 +707,83 @@ function copyFailedUrls() {
   } else {
     fallbackCopy(text);
   }
+}
+
+/**
+ * 隔离异常：把所有异常链接移入「异常站点」新分类
+ */
+function isolateFailedSites() {
+  var data = state.classifiedData;
+  var failedSites = [];
+
+  // 收集所有异常链接
+  for (var ci = 0; ci < data.length; ci++) {
+    for (var si = data[ci].sites.length - 1; si >= 0; si--) {
+      var site = data[ci].sites[si];
+      var st = LinkChecker.getStatus(site.url);
+      if (st !== 'ok') {
+        failedSites.push(site);
+        data[ci].sites.splice(si, 1);
+      }
+    }
+    // 如果分类内所有链接都被移走了，删除该分类
+    if (data[ci].sites.length === 0) {
+      data.splice(ci, 1);
+      ci--;
+    }
+  }
+
+  if (failedSites.length === 0) {
+    showToast('没有异常链接需要隔离', 'success');
+    return;
+  }
+
+  // 创建「异常站点」分类
+  var isolateCat = {
+    categoryName: '异常站点',
+    categoryIcon: '⚠️',
+    categoryColor: '#EF4444',
+    sites: failedSites
+  };
+  data.push(isolateCat);
+
+  state.classifiedData = data;
+  renderClassifiedData();
+  saveState();
+  showToast('已将 ' + failedSites.length + ' 个异常链接移入「异常站点」', 'success');
+}
+
+/**
+ * 清理异常：删除所有异常链接
+ */
+function removeFailedSites() {
+  var data = state.classifiedData;
+  var removedCount = 0;
+
+  for (var ci = 0; ci < data.length; ci++) {
+    for (var si = data[ci].sites.length - 1; si >= 0; si--) {
+      var site = data[ci].sites[si];
+      var st = LinkChecker.getStatus(site.url);
+      if (st !== 'ok') {
+        data[ci].sites.splice(si, 1);
+        removedCount++;
+      }
+    }
+    if (data[ci].sites.length === 0) {
+      data.splice(ci, 1);
+      ci--;
+    }
+  }
+
+  if (removedCount === 0) {
+    showToast('没有异常链接需要清理', 'success');
+    return;
+  }
+
+  state.classifiedData = data;
+  renderClassifiedData();
+  saveState();
+  showToast('已清理 ' + removedCount + ' 个异常链接', 'success');
 }
 
 function handleCategoryAction(e) {

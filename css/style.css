@@ -739,6 +739,48 @@ body {
   flex-wrap: wrap;
 }
 
+.check-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-isolate {
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid #FBBF24;
+  background: #FFFBEB;
+  color: #D97706;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn-isolate:hover {
+  background: #FBBF24;
+  color: #fff;
+}
+
+.btn-remove {
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid #FCA5A5;
+  background: #FEF2F2;
+  color: #DC2626;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn-remove:hover {
+  background: #EF4444;
+  color: #fff;
+}
+
 .check-filter-btn {
   font-size: 11px;
   padding: 3px 10px;
