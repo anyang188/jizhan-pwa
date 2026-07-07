@@ -213,16 +213,20 @@
   }
 
   /**
-   * 获取统计信息
+   * 获取统计信息（基于指定的URL列表，避免统计已删除的旧链接）
+   * @param {string[]} [urlList] - 可选，指定URL列表；不传则统计整个缓存
    */
-  function getStats() {
+  function getStats(urlList) {
     var ok = 0, fail = 0, unknown = 0;
     var now = Date.now();
-    for (var url in cache) {
-      if (!cache.hasOwnProperty(url)) continue;
-      if (now - cache[url].time > CACHE_TTL) continue;
-      if (cache[url].status === 'ok') ok++;
-      else if (cache[url].status === 'fail') fail++;
+    var urls = urlList || Object.keys(cache);
+    for (var i = 0; i < urls.length; i++) {
+      var url = urls[i];
+      var entry = cache[url];
+      if (!entry) continue;
+      if (now - entry.time > CACHE_TTL) continue;
+      if (entry.status === 'ok') ok++;
+      else if (entry.status === 'fail') fail++;
       else unknown++;
     }
     return { ok: ok, fail: fail, unknown: unknown, total: ok + fail + unknown };

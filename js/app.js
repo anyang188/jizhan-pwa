@@ -520,7 +520,9 @@ function renderCheckToolbar(totalSites) {
   var toolbar = $('checkToolbar');
   if (!toolbar) return;
 
-  var stats = LinkChecker.getStats();
+  // 获取当前页面所有URL，用于精准统计
+  var currentUrls = getAllUrls();
+  var stats = LinkChecker.getStats(currentUrls);
   var filterBtns = '';
   var filters = [
     { key: 'all', label: '全部 (' + totalSites + ')' },
@@ -636,7 +638,8 @@ function startBatchCheck() {
     if (progressWrap) progressWrap.style.display = 'none';
     renderClassifiedData();
     saveState();
-    showToast('检测完成！正常 ' + LinkChecker.getStats().ok + ' 个，异常 ' + (LinkChecker.getStats().fail + LinkChecker.getStats().unknown) + ' 个', 'success');
+    var finalStats = LinkChecker.getStats(getAllUrls());
+    showToast('检测完成！正常 ' + finalStats.ok + ' 个，异常 ' + (finalStats.fail + finalStats.unknown) + ' 个', 'success');
   });
 }
 
