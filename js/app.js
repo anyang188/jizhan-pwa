@@ -324,7 +324,6 @@ function renderClassifiedData() {
   if (data.length === 0) {
     $('previewCard').style.display = 'none';
     $('emptyState').style.display = state.hasParsed ? 'none' : 'block';
-    $('bottomActions').style.display = 'none';
     return;
   }
 
@@ -334,7 +333,6 @@ function renderClassifiedData() {
 
   $('previewCard').style.display = 'block';
   $('emptyState').style.display = 'none';
-  $('bottomActions').style.display = 'flex';
   $('previewHint').textContent = totalSites + ' 个站点 · ' + data.length + ' 个分类';
   $('previewCard').style.background = state.themeStyle.cardBg;
   $('previewTitle').style.color = state.themeStyle.text;

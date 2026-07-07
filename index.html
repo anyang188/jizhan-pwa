@@ -92,19 +92,15 @@
       <div class="results-card" id="previewCard" style="display:none;">
         <div class="results-header">
           <h2 class="results-title" id="previewTitle">📊 分类结果</h2>
-          <span class="results-badge" id="previewHint"></span>
+          <div class="results-header-right">
+            <span class="results-badge" id="previewHint"></span>
+            <div class="results-header-actions">
+              <button class="btn btn-export" id="exportBtn">📥 生成链页</button>
+              <button class="btn btn-reset" id="resetBtn">🔄 重新开始</button>
+            </div>
+          </div>
         </div>
         <div class="category-list" id="categoryList"></div>
-      </div>
-
-      <!-- 底部操作 -->
-      <div class="results-actions" id="bottomActions" style="display:none;">
-        <button class="btn btn-export" id="exportBtn">
-          <span class="btn-icon">📥</span> 下载导航站文件
-        </button>
-        <button class="btn btn-reset" id="resetBtn">
-          <span class="btn-icon">🔄</span> 重新开始
-        </button>
       </div>
 
     </section>
