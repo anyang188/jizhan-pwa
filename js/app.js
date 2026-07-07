@@ -380,7 +380,8 @@ function renderThemes() {
     var isCustom = t.id === 'custom';
     var bg = isCustom ? (customThemeColor || 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)') : t.color;
     var border = isCustom ? '' : 'border:1.5px solid #E5E7EB;';
-    html += '<div class="theme-item ' + (active ? 'theme-active' : '') + '" data-theme="' + t.id + '">' +
+    var customAttr = isCustom ? ' data-custom="1"' : '';
+    html += '<div class="theme-item ' + (active ? 'theme-active' : '') + '" data-theme="' + t.id + '"' + customAttr + '>' +
       '<div class="theme-color" style="background:' + bg + ';' + border + '">' +
         '<span class="theme-icon">' + (active ? 'V' : '') + '</span>' +
       '</div>' +

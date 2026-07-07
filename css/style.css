@@ -514,10 +514,8 @@ body {
   font-size: 11px;
   color: var(--text-light);
   line-height: 1.6;
-  background: var(--bg);
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  border-left: 3px solid var(--primary);
 }
 
 /* ========================================
