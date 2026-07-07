@@ -79,11 +79,12 @@ body {
   gap: 6px;
 }
 
-.brand-icon { font-size: 22px; }
+.brand-icon { font-size: 26px; }
 .brand-name {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: var(--text);
+  letter-spacing: 2px;
 }
 .brand-tag {
   font-size: 11px;
@@ -95,6 +96,12 @@ body {
   display: none;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 @media (min-width: 640px) {
   .brand-tag { display: inline; }
 }
@@ -102,15 +109,16 @@ body {
 .header-guide {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 14px;
   color: var(--text-secondary);
   background: var(--bg);
   border: none;
-  padding: 6px 14px;
+  padding: 8px 18px;
   border-radius: 20px;
   cursor: pointer;
   transition: all var(--transition);
+  font-weight: 500;
 }
 .header-guide:hover {
   background: var(--primary-light);
@@ -118,13 +126,20 @@ body {
 }
 
 .header-gh {
-  font-size: 16px;
-  text-decoration: none;
-  opacity: 0.5;
-  transition: opacity var(--transition);
-  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  transition: all var(--transition);
 }
-.header-gh:hover { opacity: 1; }
+.header-gh:hover {
+  color: var(--text);
+  background: var(--bg);
+  opacity: 1;
+}
 
 /* ========================================
    Main Layout - Desktop: 2 columns
