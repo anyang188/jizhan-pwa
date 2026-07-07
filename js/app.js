@@ -636,7 +636,6 @@ function updateLinkCount() {
 // ===== 清空输入 =====
 function onClearInput() {
   $('linkInput').value = '';
-  $('clearBtn').style.display = 'none';
   $('formatTip').style.display = 'block';
   updateLinkCount();
   showToast('输入已清空，预览数据保留');
