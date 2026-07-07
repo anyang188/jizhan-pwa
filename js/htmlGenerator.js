@@ -6,7 +6,7 @@ function generateDataJs(navData) {
   const escaped = navData.map(group => {
     const sites = group.sites.map(site => {
       var parts = ['      { name: ' + quote(site.name)];
-      if (site.icon !== group.categoryIcon) {
+      if (site.icon && site.icon !== group.categoryIcon) {
         parts.push('icon: ' + quote(site.icon));
       }
       parts.push('desc: ' + quote(site.desc));
