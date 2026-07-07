@@ -1058,6 +1058,152 @@ function fallbackCopy(text) {
   document.body.removeChild(ta);
 }
 
+// ===== 书签导入功能 =====
+var BOOKMARK_BLACKLIST = ['已导入', 'imported', '系统文件夹'];
+
+function cleanTitle(title) {
+  if (!title) return '';
+  return title
+    .replace(/[<>\/\\|?*:"']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^[^\w\u4e00-\u9fa5\-]+/, '')
+    .replace(/[^\w\u4e00-\u9fa5\-]+$/, '');
+}
+
+function importBookmarks(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var content = e.target.result;
+    
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(content, 'text/html');
+    
+    // 方案：遍历所有 <A> 标签，通过父级 H3 向上查找路径
+    var allAnchors = doc.querySelectorAll('a');
+    var allLinks = [];
+    
+    for (var ai = 0; ai < allAnchors.length; ai++) {
+      var a = allAnchors[ai];
+      var url = a.getAttribute('href') || a.getAttribute('HREF') || '';
+      var title = cleanTitle(a.textContent || a.innerText || '');
+      
+      if (!url) continue;
+      
+      // 向上遍历找 H3 文件夹路径
+      var pathParts = [];
+      var current = a.parentElement; // 通常是 DT
+      
+      while (current) {
+        // 找上一个兄弟 H3（文件夹标题）
+        var prev = current.previousElementSibling;
+        if (prev && prev.tagName === 'H3') {
+          var folderName = cleanTitle(prev.textContent);
+          if (folderName) {
+            pathParts.unshift(folderName);
+          }
+        }
+        // 往上走一层（DT -> DL -> DT -> DL ...）
+        var parent = current.parentElement;
+        if (parent && parent.tagName === 'DT') {
+          // 继续往上找 DT 的兄弟 H3
+          current = parent.parentElement;
+        } else {
+          current = parent;
+        }
+      }
+      
+      // 过滤黑名单文件夹
+      var validPathParts = [];
+      var fullyBlocked = false;
+      for (var p = 0; p < pathParts.length; p++) {
+        var isBl = false;
+        for (var b = 0; b < BOOKMARK_BLACKLIST.length; b++) {
+          if (pathParts[p].toLowerCase() === BOOKMARK_BLACKLIST[b].toLowerCase()) {
+            isBl = true;
+            break;
+          }
+        }
+        if (isBl) {
+          // 如果是"已导入"类完全匹配的黑名单文件夹，跳过整个文件夹
+          var folderLower = pathParts[p].toLowerCase();
+          for (var b = 0; b < BOOKMARK_BLACKLIST.length; b++) {
+            if (folderLower === BOOKMARK_BLACKLIST[b].toLowerCase()) {
+              fullyBlocked = true;
+              break;
+            }
+          }
+        } else {
+          validPathParts.push(pathParts[p]);
+        }
+      }
+      // 如果文件夹名完全匹配黑名单（如"已导入"），跳过整个文件夹
+      if (fullyBlocked && validPathParts.length === 0) {
+        continue;
+      }
+      
+      if (!title) {
+        try { title = new URL(url).hostname.replace('www.', ''); } catch(ex) { title = url; }
+      }
+      
+      allLinks.push({
+        url: url,
+        title: title,
+        path: validPathParts.join('-')
+      });
+    }
+    
+    // URL 去重（保持首次出现的顺序）
+    var seenUrls = {};
+    var uniqueLinks = [];
+    for (var i = 0; i < allLinks.length; i++) {
+      var u = allLinks[i].url;
+      if (!seenUrls[u]) {
+        seenUrls[u] = true;
+        uniqueLinks.push(allLinks[i]);
+      }
+    }
+    
+    // 格式化输出：带路径分类的链接
+    var lines = [];
+    for (var j = 0; j < uniqueLinks.length; j++) {
+      var link = uniqueLinks[j];
+      var line = link.url;
+      if (link.path) {
+        line += ' ' + link.path + '/' + link.title;
+      } else {
+        line += ' ' + link.title;
+      }
+      lines.push(line);
+    }
+    
+    var newText = lines.join('\n');
+    
+    // 追加到现有文本框（不覆盖已有内容）
+    var textarea = $('linkInput');
+    var existing = textarea.value.trim();
+    if (existing) {
+      textarea.value = existing + '\n\n--- 以下为书签导入 ---\n' + newText;
+    } else {
+      textarea.value = newText;
+    }
+    
+    // 更新计数
+    updateLinkCount();
+    
+    // 清除临时数据
+    allLinks = null;
+    uniqueLinks = null;
+    seenUrls = null;
+    content = null;
+    doc = null;
+    
+    showToast('导入成功，共 ' + uniqueLinks.length + ' 个链接');
+  };
+  
+  reader.readAsText(file, 'UTF-8');
+}
+
 // ===== 重置 =====
 function onReset() {
   showConfirm('确认重置', '重置后所有数据将被清空，确定吗？').then(function(confirmed) {
@@ -1202,6 +1348,22 @@ function bindEvents() {
 
   // 使用说明
   $('guideBtn').addEventListener('click', showGuide);
+
+  // 书签导入
+  $('bookmarkImportBtn').addEventListener('click', function() {
+    $('bookmarkFileInput').click();
+  });
+  $('bookmarkFileInput').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    if (!file.name.match(/\.html?$/i)) {
+      showToast('请选择 .html 格式的书签文件', 'error');
+      this.value = '';
+      return;
+    }
+    importBookmarks(file);
+    this.value = ''; // 重置，允许重复选择同一文件
+  });
 
   // 名称/副标题输入变化时同步 state
   $('siteTitle').addEventListener('input', function() {
