@@ -17,11 +17,6 @@ var THEMES = [
       '--text-secondary': '#7F8C9B', '--border': '#E8ECF1', '--shadow': '0 2px 12px rgba(0,0,0,0.06)',
       '--header-bg': 'linear-gradient(135deg, var(--primary) 0%, #6C8CFF 100%)', '--header-text': '#ffffff' },
     preview: { bg: '#F5F6FA', cardBg: '#FFFFFF', text: '#2C3E50' } },
-  { id: 'ocean', name: '海洋蓝',
-    css: { '--bg': '#e8f4fd', '--card-bg': '#ffffff', '--text': '#1a365d',
-      '--text-secondary': '#4a6fa5', '--border': '#bee3f8', '--shadow': '0 2px 12px rgba(26,54,93,0.08)',
-      '--header-bg': 'linear-gradient(135deg, #2b6cb0 0%, #63b3ed 100%)', '--header-text': '#ffffff' },
-    preview: { bg: '#e8f4fd', cardBg: '#ffffff', text: '#1a365d' } },
   { id: 'sunset', name: '落日橙', color: '#dd6b20',
     css: { '--bg': '#fff5f0', '--card-bg': '#ffffff', '--text': '#5d3a1a',
       '--text-secondary': '#b87c4a', '--border': '#ffe0cc', '--shadow': '0 2px 12px rgba(93,58,26,0.08)',
@@ -242,20 +237,12 @@ function renderThemes() {
       '<span class="theme-name">' + t.name + '</span>' +
     '</div>';
   });
-  // 自定义主题（如果已选过）
-  if (customThemeColor) {
-    var ca = state.currentTheme === 'custom';
-    html += '<div class="theme-item ' + (ca ? 'theme-active' : '') + '" data-theme="custom" data-custom="1">' +
-      '<div class="theme-color" style="background:' + customThemeColor + ';">' +
-        '<span class="theme-icon">' + (ca ? 'V' : '') + '</span>' +
-      '</div>' +
-      '<span class="theme-name">\u81ea\u5b9a\u4e49</span>' +
-    '</div>';
-  }
-  // 自定义取色器入口
-  html += '<div class="theme-item theme-picker-btn" id="themePickerBtn">' +
-    '<div class="theme-color" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);">' +
-      '<span class="theme-icon" style="color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.3);">\u2716</span>' +
+  // 自定义主题按钮（一个按钮，有颜色时显示颜色，点击打开取色器）
+  var ca = state.currentTheme === 'custom';
+  var customColor = customThemeColor || '#cccccc';
+  html += '<div class="theme-item ' + (ca ? 'theme-active' : '') + '" data-theme="custom" data-custom="1">' +
+    '<div class="theme-color" style="background:' + customColor + ';">' +
+      '<span class="theme-icon">' + (ca ? 'V' : '') + '</span>' +
     '</div>' +
     '<span class="theme-name">\u81ea\u5b9a\u4e49</span>' +
   '</div>';
@@ -268,12 +255,26 @@ function renderThemes() {
     item.addEventListener('click', function() {
       var themeId = this.getAttribute('data-theme');
       var isCustom = this.getAttribute('data-custom') === '1';
-      var theme;
+      // 自定义按钮：直接打开取色器
       if (isCustom) {
-        theme = generateCustomTheme(customThemeColor);
-      } else {
-        theme = THEMES.find(function(t) { return t.id === themeId; }) || THEMES[0];
+        var input = document.createElement('input');
+        input.type = 'color';
+        input.value = customThemeColor || '#4F6EF7';
+        input.addEventListener('input', function() {
+          customThemeColor = this.value;
+          try { localStorage.setItem('jizhan_theme_color', customThemeColor); } catch(e) {}
+          var theme = generateCustomTheme(customThemeColor);
+          state.currentTheme = 'custom';
+          state.themeStyle = theme.preview;
+          renderThemes();
+          updatePreviewColors();
+          saveState();
+        });
+        input.click();
+        return;
       }
+      var theme;
+      theme = THEMES.find(function(t) { return t.id === themeId; }) || THEMES[0];
       state.currentTheme = themeId;
       state.themeStyle = theme.preview;
       renderThemes();
@@ -281,27 +282,6 @@ function renderThemes() {
       saveState();
     });
   });
-
-  // 自定义取色器按钮
-  var pickerBtn = $('themePickerBtn');
-  if (pickerBtn) {
-    pickerBtn.addEventListener('click', function() {
-      var input = document.createElement('input');
-      input.type = 'color';
-      input.value = customThemeColor || '#4F6EF7';
-      input.addEventListener('input', function() {
-        customThemeColor = this.value;
-        try { localStorage.setItem('jizhan_theme_color', customThemeColor); } catch(e) {}
-        var theme = generateCustomTheme(customThemeColor);
-        state.currentTheme = 'custom';
-        state.themeStyle = theme.preview;
-        renderThemes();
-        updatePreviewColors();
-        saveState();
-      });
-      input.click();
-    });
-  }
 }
 
 function updatePreviewColors() {
