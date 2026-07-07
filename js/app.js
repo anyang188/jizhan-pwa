@@ -368,18 +368,20 @@ function renderThemes() {
   var html = '';
   THEMES.forEach(function(t) {
     var active = state.currentTheme === t.id;
+    var borderColor = t.id === 'clean' ? 'border:1.5px solid #E5E7EB;' : '';
     html += '<div class="theme-item ' + (active ? 'theme-active' : '') + '" data-theme="' + t.id + '">' +
-      '<div class="theme-color" style="background:' + t.color + ';">' +
+      '<div class="theme-color" style="background:' + t.color + ';' + borderColor + '">' +
         '<span class="theme-icon">' + (active ? 'V' : '') + '</span>' +
       '</div>' +
       '<span class="theme-name">' + t.name + '</span>' +
     '</div>';
   });
-  // 自定义主题按钮（一个按钮，有颜色时显示颜色，点击打开取色器）
+  // 自定义主题按钮（有颜色时显示颜色，无颜色时显示彩虹渐变）
   var ca = state.currentTheme === 'custom';
-  var customColor = customThemeColor || '#cccccc';
+  var customBg = customThemeColor || 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)';
+  var customStyle = customThemeColor ? 'background:' + customBg + ';' : 'background:' + customBg + ';';
   html += '<div class="theme-item ' + (ca ? 'theme-active' : '') + '" data-theme="custom" data-custom="1">' +
-    '<div class="theme-color" style="background:' + customColor + ';">' +
+    '<div class="theme-color" style="' + customStyle + '">' +
       '<span class="theme-icon">' + (ca ? 'V' : '') + '</span>' +
     '</div>' +
     '<span class="theme-name">\u81ea\u5b9a\u4e49</span>' +
@@ -414,6 +416,14 @@ function updatePreviewColors() {
   if (card.style.display !== 'none') {
     card.style.background = state.themeStyle.cardBg;
     $('previewTitle').style.color = state.themeStyle.text;
+  }
+  // 空状态跟随主题变化
+  var emptyState = $('emptyState');
+  if (emptyState) {
+    var emptyTitle = emptyState.querySelector('.empty-title');
+    var emptyDesc = emptyState.querySelector('.empty-desc');
+    if (emptyTitle) emptyTitle.style.color = state.themeStyle.text;
+    if (emptyDesc) emptyDesc.style.color = state.themeStyle.text ? state.themeStyle.text + '99' : '';
   }
   $('app').style.background = state.themeStyle.bg;
 }
@@ -1073,6 +1083,35 @@ function onReset() {
   });
 }
 
+// ===== 重新编辑 =====
+function onEdit() {
+  // 将解析结果的链接回填到输入框
+  var links = [];
+  state.classifiedData.forEach(function(cat) {
+    cat.sites.forEach(function(site) {
+      var line = site.url;
+      if (site.name && site.name !== site.url) {
+        line += ' ' + site.name;
+      }
+      if (cat.categoryName) {
+        line += '（' + cat.categoryName + '）';
+      }
+      links.push(line);
+    });
+  });
+  $('linkInput').value = links.join('\n');
+  state.parsedCount = links.length;
+  $('linkCount').textContent = links.length + ' 个链接已解析';
+  $('linkCount').style.color = 'var(--success)';
+  // 隐藏预览，显示输入状态
+  $('previewCard').style.display = 'none';
+  $('emptyState').style.display = 'none';
+  $('parseBtn').disabled = false;
+  $('parseBtn').innerHTML = '解析链接';
+  $('parseBtn').style.opacity = '1';
+  showToast('已回填链接，可以重新编辑');
+}
+
 // ===== 使用说明 =====
 function showGuide() {
   showModal({
@@ -1187,6 +1226,9 @@ function bindEvents() {
 
   // 重置按钮
   $('resetBtn').addEventListener('click', onReset);
+
+  // 重新编辑按钮
+  $('editBtn').addEventListener('click', onEdit);
 
   // 使用说明
   $('guideBtn').addEventListener('click', showGuide);

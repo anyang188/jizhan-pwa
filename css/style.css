@@ -243,6 +243,61 @@ body {
 .theme-icon { font-size: 10px; color: #fff; font-weight: 700; line-height: 1; }
 .theme-name { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
 
+/* Guide Button */
+.guide-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.guide-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* GitHub Icon */
+.header-gh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.header-gh:hover {
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* Placeholder deeper color */
+.input-field::placeholder,
+.link-input::placeholder {
+  color: #9CA3AF;
+  opacity: 1;
+}
+
+/* Sample button highlight */
+.btn-sample-highlight {
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  font-weight: 500;
+}
+.btn-sample-highlight:hover {
+  background: var(--primary) !important;
+  color: #fff !important;
+}
+
 /* Input Card (textarea section) */
 .input-card {
   display: flex;
@@ -371,6 +426,18 @@ body {
 .btn-reset:hover {
   background: #E5E7EB;
   color: var(--text);
+}
+
+.btn-edit {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 13px;
+  padding: 5px 14px;
+  white-space: nowrap;
+}
+.btn-edit:hover {
+  background: var(--primary);
+  color: #fff;
 }
 
 .format-tip {
