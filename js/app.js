@@ -353,8 +353,7 @@ function renderClassifiedData() {
     html += '<div class="cat-sites">';
     cat.sites.forEach(function(site, siteIndex) {
       html += '<div class="cat-site">';
-      var iconDisplay = (site.icon !== undefined && site.icon !== null && site.icon !== '') ? site.icon : cat.categoryIcon;
-      html += '<span class="site-icon editable" data-act="editSiteIcon" data-cat="' + catIndex + '" data-site="' + siteIndex + '">' + iconDisplay + '</span>';
+      html += '<span class="site-icon editable" data-act="editSiteIcon" data-cat="' + catIndex + '" data-site="' + siteIndex + '">' + site.icon + '</span>';
       html += '<span class="site-name editable" data-act="editSiteName" data-cat="' + catIndex + '" data-site="' + siteIndex + '">' + escapeHtml(site.name) + '</span>';
       html += '<span class="site-action-btn" data-act="siteAction" data-cat="' + catIndex + '" data-site="' + siteIndex + '">⇅</span>';
       html += '</div>';
@@ -418,14 +417,6 @@ function openSiteIconPicker(catIndex, siteIndex) {
   var currentIcon = siteData.icon || catData.categoryIcon;
 
   var html = '';
-  // 恢复默认（文字按钮）
-  html += '<div class="icon-item icon-default" data-act="restore"><span class="icon-emoji" style="font-size:14px;">🔄</span></div>';
-  html += '<div style="text-align:center;font-size:12px;padding:4px 0 8px;color:var(--text-secondary);">恢复默认</div>';
-  // 隐藏图标（文字按钮）
-  html += '<div class="icon-item icon-hide" data-act="hide"><span class="icon-emoji" style="font-size:14px;">🚫</span></div>';
-  html += '<div style="text-align:center;font-size:12px;padding:4px 0 12px;color:var(--text-secondary);">隐藏图标</div>';
-  // 分隔线
-  html += '<div style="border-top:1px solid var(--border);margin:0 0 8px 0;"></div>';
   ICON_OPTIONS.forEach(function(icon) {
     html += '<div class="icon-item' + (icon === currentIcon ? ' icon-selected' : '') + '" data-icon="' + icon + '"><span class="icon-emoji">' + icon + '</span></div>';
   });
@@ -437,38 +428,11 @@ function openSiteIconPicker(catIndex, siteIndex) {
     onClose: function() { state.editingCategoryIndex = -1; }
   });
 
-  // 恢复默认
-  var restoreBtn = document.querySelector('.icon-default');
-  if (restoreBtn) {
-    restoreBtn.addEventListener('click', function() {
-      state.classifiedData[catIndex].sites[siteIndex].icon = catData.categoryIcon;
-      state.classifiedData[catIndex].sites[siteIndex]._customIcon = true;
-      closeModal();
-      renderClassifiedData();
-      saveState();
-      showToast('已恢复分类默认图标', 'success');
-    });
-  }
-
-  // 隐藏图标
-  var hideBtn = document.querySelector('.icon-hide');
-  if (hideBtn) {
-    hideBtn.addEventListener('click', function() {
-      state.classifiedData[catIndex].sites[siteIndex].icon = '';
-      state.classifiedData[catIndex].sites[siteIndex]._customIcon = true;
-      closeModal();
-      renderClassifiedData();
-      saveState();
-      showToast('已隐藏图标', 'success');
-    });
-  }
-
   // 选择图标
   document.querySelectorAll('.icon-item[data-icon]').forEach(function(item) {
     item.addEventListener('click', function() {
       var icon = this.getAttribute('data-icon');
       state.classifiedData[catIndex].sites[siteIndex].icon = icon;
-      state.classifiedData[catIndex].sites[siteIndex]._customIcon = true;
       closeModal();
       renderClassifiedData();
       saveState();
