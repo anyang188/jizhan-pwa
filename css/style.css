@@ -750,9 +750,11 @@ body {
   width: 100%;
   max-width: 420px;
   max-height: 80vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.2s ease;
+  overflow: hidden;
 }
 
 .icon-picker-modal {
@@ -765,10 +767,8 @@ body {
   align-items: center;
   padding: 16px 20px 12px;
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
   background: var(--card);
-  z-index: 1;
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -779,14 +779,18 @@ body {
 .modal-close {
   font-size: 20px;
   color: var(--text-light);
-  padding: 4px;
   cursor: pointer;
-  line-height: 1;
-  transition: color var(--transition);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background var(--transition);
 }
-.modal-close:hover { color: var(--text); }
+.modal-close:hover { background: var(--bg); }
 
-.modal-body { padding: 14px 20px 20px; }
+.modal-body {
+  padding: 16px 20px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
 
 .modal-btn-group {
   margin-top: 14px;
