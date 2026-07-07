@@ -69,19 +69,23 @@ body {
 .header-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
+  position: relative;
+  height: var(--header-h);
 }
 
 .header-brand {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  position: absolute;
+  left: 0;
 }
 
-.brand-icon { font-size: 26px; }
+.brand-icon { font-size: 36px; }
 .brand-name {
-  font-size: 24px;
+  font-size: 36px;
   font-weight: 800;
   color: var(--text);
   letter-spacing: 2px;
@@ -100,6 +104,8 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  position: absolute;
+  right: 0;
 }
 
 @media (min-width: 640px) {
