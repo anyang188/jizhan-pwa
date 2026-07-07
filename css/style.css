@@ -559,6 +559,21 @@ body {
 }
 .site-move:hover { opacity: 0.75; }
 
+.site-action-btn {
+  font-size: 12px;
+  color: var(--text-light);
+  padding: 1px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  line-height: 1;
+}
+.site-action-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
 .editable {
   cursor: pointer;
   transition: background var(--transition);
@@ -587,6 +602,11 @@ body {
 .icon-item:hover { background: var(--primary-light); transform: scale(1.12); }
 
 .icon-emoji { font-size: 20px; line-height: 1; }
+
+.icon-selected {
+  background: var(--primary-light);
+  border: 2px solid var(--primary);
+}
 
 /* ========================================
    Move Category Picker
@@ -1006,31 +1026,4 @@ body {
   .app-main { gap: 32px; }
   .panel-input { width: 400px; padding: 24px; }
   .panel-results { padding: 24px; }
-}
-
-/* ========================================
-   PWA Install Button
-   ======================================== */
-.pwa-install-btn {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 24px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(79,110,247,0.3);
-  z-index: 1000;
-  transition: all 0.2s;
-  animation: slideUp 0.3s ease;
-}
-.pwa-install-btn:hover {
-  background: var(--primary-hover);
-  box-shadow: 0 6px 24px rgba(79,110,247,0.4);
-  transform: translateX(-50%) translateY(-2px);
 }

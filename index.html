@@ -9,7 +9,6 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#4F6EF7">
-<link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/style.css">
@@ -119,43 +118,5 @@
 <script src="js/classifier.js"></script>
 <script src="js/htmlGenerator.js"></script>
 <script src="js/app.js"></script>
-<script>
-// 动态注入版本戳，用于缓存更新检测
-(function() {
-  var version = (typeof VERSION !== 'undefined' ? VERSION : 'v5').replace('v', '');
-  var cssLink = document.querySelector('link[href*="style.css"]');
-  if (cssLink) cssLink.href = 'css/style.css?v=' + version;
-})();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(function(err) {
-    console.log('SW registration failed:', err);
-  });
-}
-
-// PWA 安装引导
-var deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  deferredPrompt = e;
-  // 3秒后显示安装提示
-  setTimeout(function() {
-    var installBtn = document.createElement('div');
-    installBtn.className = 'pwa-install-btn';
-    installBtn.innerHTML = '📲 安装到桌面';
-    installBtn.onclick = function() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function(result) {
-          deferredPrompt = null;
-          installBtn.remove();
-        });
-      }
-    };
-    document.body.appendChild(installBtn);
-  }, 3000);
-});
-</script>
 </body>
 </html>

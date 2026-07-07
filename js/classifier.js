@@ -177,7 +177,6 @@ const NAME_MAP = {
   'xmind.cn': 'XMind',
   'gamma.app': 'Gamma',
   'github.com': 'GitHub',
-  'github.com/features/copilot': 'GitHub Copilot',
   'cursor.sh': 'Cursor',
   'vercel.com': 'Vercel',
   'www.cloudflare.com': 'Cloudflare',
@@ -273,7 +272,8 @@ function parseLinks(text) {
     seenDomains.add(domain);
 
     if (afterUrl) {
-      const parts = afterUrl.split(/\|::?|::/);
+      // 支持 |: 或 :: 作为描述分隔符
+      const parts = afterUrl.split(/::|\|:/);
       title = (parts[0] || '').trim();
       desc = (parts[1] || '').trim();
     }

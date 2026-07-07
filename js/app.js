@@ -733,9 +733,12 @@ function onParse() {
     var grouped = Classifier.groupByCategory(mergedSites);
     state.parsedCount = mergedSites.length;
     state.classifiedData = grouped;
+
+    // 先保存旧值再标记，避免消息判断错误
+    var wasParsed = state.hasParsed;
     state.hasParsed = true;
 
-    var msg = state.hasParsed && addedCount > 0
+    var msg = wasParsed && addedCount > 0
       ? '合并完成，新增 ' + addedCount + ' 个'
       : mergedSites.length + ' 个链接已解析';
     $('linkCount').textContent = msg;
@@ -759,9 +762,17 @@ function onExport() {
 function _doExport() {
   var siteTitle = $('siteTitle').value || '我的导航站';
   var siteSubtitle = $('siteSubtitle').value || '';
-  var singleFileHTML = generateSingleFile(siteTitle, siteSubtitle, '#4F6EF7', state.currentTheme);
+  // 获取当前主题的色调，替代硬编码 #4F6EF7
+  var themeColor = getThemePrimaryColor(state.currentTheme);
+  var singleFileHTML = generateSingleFile(siteTitle, siteSubtitle, themeColor, state.currentTheme);
 
   showExportSuccess(singleFileHTML);
+}
+
+function getThemePrimaryColor(themeId) {
+  if (themeId === 'custom' && customThemeColor) return customThemeColor;
+  var theme = THEMES.find(function(t) { return t.id === themeId; });
+  return theme ? theme.color : '#4F6EF7';
 }
 
 function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
@@ -769,7 +780,11 @@ function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
   var escapedSubtitle = escapeHtml(siteSubtitle);
   var year = new Date().getFullYear();
 
-  var theme = THEMES.find(function(t) { return t.id === themeId; }) || THEMES[0];
+  var theme = THEMES.find(function(t) { return t.id === themeId; });
+  if (!theme) {
+    // 处理自定义主题
+    theme = customThemeColor ? generateCustomTheme(customThemeColor) : THEMES[0];
+  }
   var themeVars = Object.entries(theme.css).map(function(entry) {
     return '  ' + entry[0] + ': ' + entry[1] + ';';
   }).join('\n');
@@ -930,6 +945,7 @@ function fallbackCopy(text) {
     closeModal();
   } catch (e) {
     showToast('复制失败，请手动下载文件');
+    closeModal();
   }
   document.body.removeChild(ta);
 }
