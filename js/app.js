@@ -241,27 +241,9 @@ var TRACK_HEIGHT = 200;
 var THUMB_HEIGHT = 24;
 var MAX_Y = TRACK_HEIGHT - THUMB_HEIGHT;
 
-function openColorPicker() {
-  // 如果已有自定义颜色，解析 HSL
-  if (customThemeColor) {
-    var hsl = hexToHsl(customThemeColor);
-    if (hsl) {
-      colorPickerState.hue = hsl.h;
-      colorPickerState.saturation = hsl.s;
-      colorPickerState.lightness = hsl.l;
-    }
-  }
-  // 初始化拖拽（此时 overlay 可见，getBoundingClientRect 正确）
-  initColorPickerDrag('hueTrack', 'hue');
-  initColorPickerDrag('satTrack', 'saturation');
-  initColorPickerDrag('lightTrack', 'lightness');
-  updateColorPickerUI();
-  $('colorPickerOverlay').style.display = 'flex';
-}
 
-function closeColorPicker() {
-  $('colorPickerOverlay').style.display = 'none';
-}
+
+
 
 function hexToHsl(hex) {
   var h = hex.replace('#', '');
@@ -281,97 +263,11 @@ function hexToHsl(hex) {
   return { h: Math.round(h2), s: Math.round(s * 100), l: Math.round(l * 100) };
 }
 
-function updateColorPickerUI() {
-  var h = colorPickerState.hue;
-  var s = colorPickerState.saturation;
-  var l = colorPickerState.lightness;
-  var hex = hslToHex(h, s, l);
 
-  // 更新滑块位置
-  var hueY = Math.round((1 - h / 360) * MAX_Y);
-  var satY = Math.round((1 - s / 100) * MAX_Y);
-  var lightY = Math.round((1 - l / 100) * MAX_Y);
-  $('hueThumb').style.top = (THUMB_HEIGHT / 2 + hueY) + 'px';
-  $('satThumb').style.top = (THUMB_HEIGHT / 2 + satY) + 'px';
-  $('lightThumb').style.top = (THUMB_HEIGHT / 2 + lightY) + 'px';
 
-  // 更新饱和度和亮度的渐变背景
-  $('satTrack').style.background = 'linear-gradient(to top, #808080 0%, ' + hslToHex(h, 100, 50) + ' 100%)';
-  $('lightTrack').style.background = 'linear-gradient(to top, #000 0%, ' + hslToHex(h, s, 50) + ' 50%, #fff 100%)';
 
-  // 更新数值显示
-  $('hueVal').textContent = h + '°';
-  $('satVal').textContent = s + '%';
-  $('lightVal').textContent = l + '%';
 
-  // 更新预览色
-  $('colorPreview').style.background = hex;
-}
 
-var _colorPickerDragInited = {};
-
-function initColorPickerDrag(trackId, param) {
-  // 防止重复绑定事件
-  var key = trackId + '_' + param;
-  if (_colorPickerDragInited[key]) return;
-  _colorPickerDragInited[key] = true;
-  
-  var track = $(trackId);
-  var thumb = track.querySelector('.vthumb');
-  var dragging = false;
-
-  function updateFromY(y) {
-    var rect = track.getBoundingClientRect();
-    var relY = y - rect.top - THUMB_HEIGHT / 2;
-    var ratio = 1 - Math.max(0, Math.min(1, relY / MAX_Y));
-    if (param === 'hue') {
-      colorPickerState.hue = Math.round(ratio * 360);
-    } else {
-      colorPickerState[param] = Math.round(ratio * 100);
-    }
-    updateColorPickerUI();
-  }
-
-  track.addEventListener('mousedown', function(e) {
-    dragging = true;
-    updateFromY(e.clientY);
-    e.preventDefault();
-  });
-
-  track.addEventListener('touchstart', function(e) {
-    dragging = true;
-    updateFromY(e.touches[0].clientY);
-    e.preventDefault();
-  }, { passive: false });
-
-  document.addEventListener('mousemove', function(e) {
-    if (dragging) updateFromY(e.clientY);
-  });
-
-  document.addEventListener('touchmove', function(e) {
-    if (dragging) {
-      updateFromY(e.touches[0].clientY);
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  document.addEventListener('mouseup', function() { dragging = false; });
-  document.addEventListener('touchend', function() { dragging = false; });
-}
-
-function confirmColor() {
-  var hex = hslToHex(colorPickerState.hue, colorPickerState.saturation, colorPickerState.lightness);
-  customThemeColor = hex;
-  try { localStorage.setItem('jizhan_theme_color', customThemeColor); } catch(e) {}
-  var theme = generateCustomTheme(customThemeColor);
-  state.currentTheme = 'custom';
-  state.themeStyle = theme.preview;
-  applyThemeCSS(theme.css);
-  closeColorPicker();
-  renderThemes();
-  updatePreviewColors();
-  saveState();
-}
 
 
 function applyThemeCSS(cssObj) {
@@ -1836,19 +1732,230 @@ function init() {
     }
   }
 
-  // 初始化 HSL 取色器
-  // 取色器拖拽在 openColorPicker 时初始化（此时 DOM 可见）
-  $('colorCancelBtn').addEventListener('click', closeColorPicker);
-  $('colorConfirmBtn').addEventListener('click', confirmColor);
-  $('colorPickerOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeColorPicker();
-  });
+  // 取色器改用动态DOM渲染，无需初始化绑定
 }
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
+}
+
+
+// ===== 自定义取色器（动态DOM渲染，杜绝残留） =====
+var colorPickerState = { hue: 0, saturation: 50, lightness: 50 };
+var TRACK_HEIGHT = 200;
+var THUMB_HEIGHT = 24;
+var MAX_Y = TRACK_HEIGHT - THUMB_HEIGHT;
+
+// 页面初始化时强制清理残留弹窗
+(function cleanupOldPicker() {
+  var old = document.getElementById('colorPickerOverlay');
+  if (old) old.remove();
+})();
+
+function openColorPicker() {
+  // 如果已有自定义颜色，解析 HSL
+  if (customThemeColor) {
+    var hsl = hexToHsl(customThemeColor);
+    if (hsl) {
+      colorPickerState.hue = hsl.h;
+      colorPickerState.saturation = hsl.s;
+      colorPickerState.lightness = hsl.l;
+    }
+  }
+  // 动态创建弹窗DOM
+  createColorPickerDOM();
+}
+
+function createColorPickerDOM() {
+  // 先清理可能残留的弹窗
+  destroyColorPicker();
+
+  var h = colorPickerState.hue;
+  var s = colorPickerState.saturation;
+  var l = colorPickerState.lightness;
+  var hex = hslToHex(h, s, l);
+  var hueY = Math.round((1 - h / 360) * MAX_Y);
+  var satY = Math.round((1 - s / 100) * MAX_Y);
+  var lightY = Math.round((1 - l / 100) * MAX_Y);
+
+  // 创建遮罩层
+  var overlay = document.createElement('div');
+  overlay.id = 'colorPickerOverlay';
+  overlay.className = 'color-picker-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;';
+
+  // 创建弹窗
+  var modal = document.createElement('div');
+  modal.className = 'color-picker-modal';
+  modal.style.cssText = 'background:#fff;border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.2);width:320px;max-width:90vw;';
+
+  // 弹窗内容
+  modal.innerHTML = 
+    '<div class="color-picker-header" style="padding:16px 20px 12px;border-bottom:1px solid #E5E7EB;">' +
+      '<span class="color-picker-title" style="font-size:16px;font-weight:600;color:#1A1A2E;">🎨 自定义颜色</span>' +
+    '</div>' +
+    '<div class="color-picker-body" style="padding:20px;">' +
+      '<div class="vgroup" style="display:flex;gap:24px;align-items:flex-start;justify-content:center;">' +
+        '<div class="vcol" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">' +
+          '<span class="vlabel" style="font-size:12px;color:#7F8C9B;font-weight:500;">色相</span>' +
+          '<div class="vtrack vtrack-hue" id="hueTrack" style="width:48px;height:200px;border-radius:24px;position:relative;border:2px solid #E5E7EB;cursor:pointer;touch-action:none;background:linear-gradient(to top,#f00 0%,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%);">' +
+            '<div class="vthumb" id="hueThumb" style="position:absolute;left:50%;transform:translate(-50%,-50%);width:48px;height:24px;pointer-events:none;top:' + (THUMB_HEIGHT/2+hueY) + 'px;"></div>' +
+          '</div>' +
+          '<span class="vval" id="hueVal" style="font-size:12px;color:#2C3E50;font-weight:600;">' + h + '°</span>' +
+        '</div>' +
+        '<div class="vcol" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">' +
+          '<span class="vlabel" style="font-size:12px;color:#7F8C9B;font-weight:500;">饱和度</span>' +
+          '<div class="vtrack vtrack-sat" id="satTrack" style="width:48px;height:200px;border-radius:24px;position:relative;border:2px solid #E5E7EB;cursor:pointer;touch-action:none;background:linear-gradient(to top,#808080 0%,' + hslToHex(h,100,50) + ' 100%);">' +
+            '<div class="vthumb" id="satThumb" style="position:absolute;left:50%;transform:translate(-50%,-50%);width:48px;height:24px;pointer-events:none;top:' + (THUMB_HEIGHT/2+satY) + 'px;"></div>' +
+          '</div>' +
+          '<span class="vval" id="satVal" style="font-size:12px;color:#2C3E50;font-weight:600;">' + s + '%</span>' +
+        '</div>' +
+        '<div class="vcol" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">' +
+          '<span class="vlabel" style="font-size:12px;color:#7F8C9B;font-weight:500;">亮度</span>' +
+          '<div class="vtrack vtrack-light" id="lightTrack" style="width:48px;height:200px;border-radius:24px;position:relative;border:2px solid #E5E7EB;cursor:pointer;touch-action:none;background:linear-gradient(to top,#000 0%,' + hslToHex(h,s,50) + ' 50%,#fff 100%);">' +
+            '<div class="vthumb" id="lightThumb" style="position:absolute;left:50%;transform:translate(-50%,-50%);width:48px;height:24px;pointer-events:none;top:' + (THUMB_HEIGHT/2+lightY) + 'px;"></div>' +
+          '</div>' +
+          '<span class="vval" id="lightVal" style="font-size:12px;color:#2C3E50;font-weight:600;">' + l + '%</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="color-picker-footer" style="display:flex;align-items:center;gap:12px;margin-top:20px;">' +
+        '<div class="color-preview" id="colorPreview" style="width:44px;height:44px;border-radius:10px;background:' + hex + ';border:2px solid #E5E7EB;flex-shrink:0;"></div>' +
+        '<div style="flex:1;"></div>' +
+        '<button type="button" id="colorCancelBtn" style="font-size:14px;padding:8px 20px;border-radius:8px;border:none;cursor:pointer;background:#E8ECF1;color:#7F8C9B;transition:background 0.2s;">取消</button>' +
+        '<button type="button" id="colorConfirmBtn" style="font-size:14px;padding:8px 20px;border-radius:8px;border:none;cursor:pointer;background:#4F6EF7;color:#fff;transition:background 0.2s;">确定</button>' +
+      '</div>' +
+    '</div>';
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // 绑定事件：点击遮罩外部关闭
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) destroyColorPicker();
+  });
+
+  // 绑定事件：取消按钮
+  document.getElementById('colorCancelBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    destroyColorPicker();
+  });
+
+  // 绑定事件：确定按钮
+  document.getElementById('colorConfirmBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var hex = hslToHex(colorPickerState.hue, colorPickerState.saturation, colorPickerState.lightness);
+    customThemeColor = hex;
+    try { localStorage.setItem('jizhan_theme_color', customThemeColor); } catch(ex) {}
+    var theme = generateCustomTheme(customThemeColor);
+    state.currentTheme = 'custom';
+    state.themeStyle = theme.preview;
+    applyThemeCSS(theme.css);
+    destroyColorPicker();
+    renderThemes();
+    updatePreviewColors();
+    saveState();
+  });
+
+  // 初始化滑块拖拽
+  initPickerDrag('hueTrack', 'hue');
+  initPickerDrag('satTrack', 'saturation');
+  initPickerDrag('lightTrack', 'lightness');
+}
+
+function destroyColorPicker() {
+  var overlay = document.getElementById('colorPickerOverlay');
+  if (overlay) {
+    overlay.remove();
+  }
+}
+
+function initPickerDrag(trackId, param) {
+  var track = document.getElementById(trackId);
+  if (!track) return;
+  var dragging = false;
+
+  function updateFromY(y) {
+    var rect = track.getBoundingClientRect();
+    var relY = y - rect.top - THUMB_HEIGHT / 2;
+    var ratio = 1 - Math.max(0, Math.min(1, relY / MAX_Y));
+    if (param === 'hue') {
+      colorPickerState.hue = Math.round(ratio * 360);
+    } else {
+      colorPickerState[param] = Math.round(ratio * 100);
+    }
+    updatePickerUI();
+  }
+
+  function onMouseDown(e) {
+    dragging = true;
+    updateFromY(e.clientY);
+    e.preventDefault();
+  }
+
+  function onTouchStart(e) {
+    dragging = true;
+    updateFromY(e.touches[0].clientY);
+    e.preventDefault();
+  }
+
+  function onMouseMove(e) {
+    if (dragging) updateFromY(e.clientY);
+  }
+
+  function onTouchMove(e) {
+    if (dragging) {
+      updateFromY(e.touches[0].clientY);
+      e.preventDefault();
+    }
+  }
+
+  function onEnd() { dragging = false; }
+
+  track.addEventListener('mousedown', onMouseDown);
+  track.addEventListener('touchstart', onTouchStart, { passive: false });
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchend', onEnd);
+}
+
+function updatePickerUI() {
+  var h = colorPickerState.hue;
+  var s = colorPickerState.saturation;
+  var l = colorPickerState.lightness;
+  var hex = hslToHex(h, s, l);
+
+  var hueThumb = document.getElementById('hueThumb');
+  var satThumb = document.getElementById('satThumb');
+  var lightThumb = document.getElementById('lightThumb');
+  var satTrack = document.getElementById('satTrack');
+  var lightTrack = document.getElementById('lightTrack');
+  var hueVal = document.getElementById('hueVal');
+  var satVal = document.getElementById('satVal');
+  var lightVal = document.getElementById('lightVal');
+  var colorPreview = document.getElementById('colorPreview');
+
+  if (!hueThumb) return; // 弹窗已关闭
+
+  var hueY = Math.round((1 - h / 360) * MAX_Y);
+  var satY = Math.round((1 - s / 100) * MAX_Y);
+  var lightY = Math.round((1 - l / 100) * MAX_Y);
+
+  hueThumb.style.top = (THUMB_HEIGHT / 2 + hueY) + 'px';
+  satThumb.style.top = (THUMB_HEIGHT / 2 + satY) + 'px';
+  lightThumb.style.top = (THUMB_HEIGHT / 2 + lightY) + 'px';
+
+  if (satTrack) satTrack.style.background = 'linear-gradient(to top, #808080 0%, ' + hslToHex(h, 100, 50) + ' 100%)';
+  if (lightTrack) lightTrack.style.background = 'linear-gradient(to top, #000 0%, ' + hslToHex(h, s, 50) + ' 50%, #fff 100%)';
+
+  if (hueVal) hueVal.textContent = h + '°';
+  if (satVal) satVal.textContent = s + '%';
+  if (lightVal) lightVal.textContent = l + '%';
+  if (colorPreview) colorPreview.style.background = hex;
 }
 
 })();

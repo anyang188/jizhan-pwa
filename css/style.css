@@ -1578,17 +1578,17 @@ body {
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  top: 50%;
+  z-index: 10;
 }
 
 .vthumb::before {
   content: '';
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   background: #fff;
-  border: 3px solid var(--primary, #4F6EF7);
+  border: 3px solid #4F6EF7;
   border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .vval {
@@ -1623,25 +1623,27 @@ body {
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  transition: background var(--transition, 0.2s ease);
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
 .color-btn-cancel {
-  background: var(--bg, #E8ECF1);
-  color: var(--text-secondary, #7F8C9B);
+  background: #E8ECF1;
+  color: #7F8C9B;
 }
 
 .color-btn-cancel:hover {
-  background: var(--border, #D1D5DB);
+  background: #D1D5DB;
+  color: #4B5563;
 }
 
 .color-btn-confirm {
-  background: var(--primary, #4F6EF7);
+  background: #4F6EF7;
   color: #fff;
 }
 
 .color-btn-confirm:hover {
-  background: var(--primary-hover, #3B5DE7);
+  background: #3B5DE7;
 }
 
 /* ===== 暗夜黑主题全局适配 ===== */
