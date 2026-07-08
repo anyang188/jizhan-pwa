@@ -1276,8 +1276,10 @@ function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
 '.logo h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }\n' +
 '.logo-sub { font-size: 13px; opacity: 0.85; background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 20px; margin-left: 4px; }\\n' +
 '.header-right { display: flex; align-items: center; }\\n' +
-'.deploy-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(4px); white-space: nowrap; }\\n' +
+'.deploy-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(4px); white-space: nowrap; position: relative; }\\n' +
 '.deploy-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); }\\n' +
+'.deploy-tooltip { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: #1a1a2e; border-radius: 10px; padding: 14px 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); min-width: 260px; z-index: 200; color: #fff; font-size: 13px; line-height: 2; }\\n' +
+'.deploy-tooltip.show { display: block; }\\n' +
 '.search-bar { max-width: var(--max-width); margin: 24px auto 0; padding: 0 24px; }\n' +
 '.search-inner { background: var(--card-bg); border-radius: var(--radius); padding: 0 20px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); border: 2px solid transparent; transition: all var(--transition); }\n' +
 '.search-inner:focus-within { border-color: var(--primary); box-shadow: var(--shadow-hover); }\n' +
@@ -1308,7 +1310,7 @@ function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
 '</style>\n' +
 '</head>\n' +
 '<body>\n\n' +
-'<header class="header"><div class="header-inner"><div class="logo"><span class="logo-icon">⚡</span><h1>' + escapedTitle + '</h1>' + (siteSubtitle ? '<span class="logo-sub">' + escapedSubtitle + '</span>' : '') + '</div><div class="header-right"><button class="deploy-btn" id="deployBtn">🌐 生成在线版</button></div></div></header>\n\n' +
+'<header class="header"><div class="header-inner"><div class="logo"><span class="logo-icon">⚡</span><h1>' + escapedTitle + '</h1>' + (siteSubtitle ? '<span class="logo-sub">' + escapedSubtitle + '</span>' : '') + '</div><div class="header-right"><div class="deploy-wrapper"><button class="deploy-btn" id="deployBtn">🌐 生成在线版</button><div class="deploy-tooltip" id="deployTip">📞 微信：anyang0188<br>🌐 帮你部署到网络上，生成永久分享链接<br>💰 代部署服务 5 元起<br>👆 点击复制联系方式</div></div></div></div></header>\n\n' +
 '<div class="search-bar"><div class="search-inner"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜索网址、工具..." autocomplete="off"><span class="search-shortcut">Ctrl+K</span></div></div>\n\n' +
 '<div class="nav-container" id="navContainer"></div>\n\n' +
 '<button class="back-top" id="backTop" title="返回顶部">⬆</button>\n\n' +
@@ -1317,6 +1319,9 @@ function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
 '<script>\n' + appJs + '\n</script>\n' +
 '<script>\n' +
 'document.getElementById("deployBtn").addEventListener("click",function(){var wx="anyang0188";if(navigator.clipboard){navigator.clipboard.writeText(wx).then(function(){alert("微信号已复制："+wx)})}else{prompt("请复制微信号：",wx)}});\n' +
+'var btn=document.getElementById("deployBtn"),tip=document.getElementById("deployTip");\n' +
+'btn.addEventListener("mouseenter",function(){tip.classList.add("show")});\n' +
+'btn.addEventListener("mouseleave",function(){setTimeout(function(){tip.classList.remove("show")},200)});\n' +
 '</script>\n' +
 '</body>\n</html>';
 }
