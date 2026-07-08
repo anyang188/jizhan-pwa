@@ -472,9 +472,9 @@ function renderCheckToolbar(totalSites) {
         '<div class="more-dropdown" id="moreDropdown">' +
           '<button class="btn-more" id="moreBtn">异常管理</button>' +
           '<div class="more-menu" id="moreMenu">' +
-            '<div class="more-menu-item" id="copyMenuItem">📋 复制失效链接</div>' +
-            '<div class="more-menu-item" id="isolateMenuItem">隔离异常</div>' +
-            '<div class="more-menu-item more-danger" id="removeMenuItem">清理异常</div>' +
+            '<div class="more-menu-item" id="copyMenuItem">📋 复制异常链接</div>' +
+            '<div class="more-menu-item" id="isolateMenuItem">📦 隔离异常链接</div>' +
+            '<div class="more-menu-item more-danger" id="removeMenuItem">🗑 清理异常链接</div>'
           '</div>' +
         '</div>' +
       '</div>';
@@ -542,7 +542,7 @@ function renderCheckToolbar(totalSites) {
   if (removeItem) {
     removeItem.addEventListener('click', function() {
       moreMenu.classList.remove('open');
-      showConfirm('确认清理异常链接', '确认删除所有异常链接？', {
+      showConfirm('确认清理异常链接', '确认删除所有异常链接？\n\n注：异常不代表网站失效，可能是 CORS 代理无法访问导致的误判。清理后不可恢复，确定要删除这些链接吗？', {
         confirmText: '确认清理',
         cancelText: '取消'
       }).then(function(confirmed) {
