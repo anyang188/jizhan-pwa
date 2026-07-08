@@ -472,9 +472,9 @@ function renderCheckToolbar(totalSites) {
         '<div class="more-dropdown" id="moreDropdown">' +
           '<button class="btn-more" id="moreBtn">异常管理</button>' +
           '<div class="more-menu" id="moreMenu">' +
-            '<div class="more-menu-item" id="copyMenuItem">📋 复制异常链接</div>' +
-            '<div class="more-menu-item" id="isolateMenuItem">📦 隔离异常链接</div>' +
-            '<div class="more-menu-item more-danger" id="removeMenuItem">🗑 清理异常链接</div>'
+            '<div class="more-menu-item" id="copyMenuItem">复制异常链接</div>' +
+            '<div class="more-menu-item" id="isolateMenuItem">隔离异常链接</div>' +
+            '<div class="more-menu-item more-danger" id="removeMenuItem">清理异常链接</div>'
           '</div>' +
         '</div>' +
       '</div>';
