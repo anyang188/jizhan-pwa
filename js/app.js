@@ -1274,7 +1274,15 @@ function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
 '.logo { display: flex; align-items: center; gap: 10px; }\n' +
 '.logo-icon { font-size: 28px; }\n' +
 '.logo h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }\n' +
-'.logo-sub { font-size: 13px; opacity: 0.85; background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 20px; margin-left: 4px; }\n' +
+'.logo-sub { font-size: 13px; opacity: 0.85; background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 20px; margin-left: 4px; }\\n' +
+'.header-right { display: flex; align-items: center; gap: 12px; }\\n' +
+'.deploy-wrapper { position: relative; display: inline-flex; align-items: center; }\\n' +
+'.deploy-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(4px); white-space: nowrap; }\\n' +
+'.deploy-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); }\\n' +
+'.deploy-info { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--card-bg); border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow-lg); min-width: 280px; z-index: 200; }\\n' +
+'.deploy-info.show { display: block; }\\n' +
+'.deploy-info p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }\\n' +
+'.deploy-info strong { color: var(--primary); }\\n' +
 '.search-bar { max-width: var(--max-width); margin: 24px auto 0; padding: 0 24px; }\n' +
 '.search-inner { background: var(--card-bg); border-radius: var(--radius); padding: 0 20px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); border: 2px solid transparent; transition: all var(--transition); }\n' +
 '.search-inner:focus-within { border-color: var(--primary); box-shadow: var(--shadow-hover); }\n' +
@@ -1305,12 +1313,27 @@ function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
 '</style>\n' +
 '</head>\n' +
 '<body>\n\n' +
-'<header class="header"><div class="header-inner"><div class="logo"><span class="logo-icon">⚡</span><h1>' + escapedTitle + '</h1>' + (siteSubtitle ? '<span class="logo-sub">' + escapedSubtitle + '</span>' : '') + '</div></div></header>\n\n' +
+'<header class="header"><div class="header-inner"><div class="logo"><span class="logo-icon">⚡</span><h1>' + escapedTitle + '</h1>' + (siteSubtitle ? '<span class="logo-sub">' + escapedSubtitle + '</span>' : '') + '</div><div class="header-right"><div class="deploy-wrapper"><button class="deploy-btn" id="deployBtn">🌐 生成在线版</button><div class="deploy-info" id="deployInfo"><p>📞 微信：<strong>anyang0188</strong></p><p style="margin-top:4px;">帮你部署导航站到服务器，生成可分享的网页链接</p></div></div></div></div></header>\\n\\n'
 '<div class="search-bar"><div class="search-inner"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜索网址、工具..." autocomplete="off"><span class="search-shortcut">Ctrl+K</span></div></div>\n\n' +
 '<div class="nav-container" id="navContainer"></div>\n\n' +
-'<button class="back-top" id="backTop" title="返回顶部">⬆</button>\n\n' +
-'<footer class="footer"><p>' + escapedTitle + ' &copy; ' + year + '</p><p style="margin-top:8px;font-size:12px;opacity:0.6;">Powered by <a href="https://anyang0188.github.io/jizhan/" target="_blank" style="color:inherit;">集站</a></p><button class="contact-btn" onclick="document.getElementById(\'contactInfo\').classList.toggle(\'show\')">🌐 生成在线版</button><div id="contactInfo" class="contact-info">📞 微信：anyang0188 ｜ 帮你部署导航站到服务器，生成可分享的网页链接</div></footer>\n\n' +
-'<script>\n' + dataJs + '\n</script>\n' +
+'<button class="back-top" id="backTop" title="返回顶部">⬆</button>\\n\\n' +
+'<footer class="footer"><p>' + escapedTitle + ' &copy; ' + year + '</p><p style="margin-top:8px;font-size:12px;opacity:0.6;">Powered by <a href="https://anyang0188.github.io/jizhan/" target="_blank" style="color:inherit;">集站</a></p></footer>\\n\\n' +
+'<script>\\n' +
+'  var deployBtn = document.getElementById("deployBtn");\\n' +
+'  var deployInfo = document.getElementById("deployInfo");\\n' +
+'  if (deployBtn && deployInfo) {\\n' +
+'    deployBtn.addEventListener("click", function(e) {\\n' +
+'      e.stopPropagation();\\n' +
+'      deployInfo.classList.toggle("show");\\n' +
+'    });\\n' +
+'    document.addEventListener("click", function(e) {\\n' +
+'      if (!deployInfo.contains(e.target)) {\\n' +
+'        deployInfo.classList.remove("show");\\n' +
+'      }\\n' +
+'    });\\n' +
+'  }\\n' +
+'</script>\\n' +
+'<script>\\n' + dataJs + '\\n</script>\\n' +
 '<script>\n' + appJs + '\n</script>\n' +
 '</body>\n</html>';
 }
