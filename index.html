@@ -79,7 +79,7 @@
           <div class="bookmark-hint">📁 从 Chrome/Edge 导出书签 HTML 文件导入。所有解析均在本地完成，不上传服务器。</div>
         </div>
         <textarea class="link-input" id="linkInput"
-          placeholder="https://github.com&#10;https://www.bilibili.com/ 哔哩哔哩（视频）&#10;https://chat.deepseek.com DeepSeek"
+          placeholder="每行一个链接，支持 3 种格式：&#10;纯链接 → https://github.com&#10;链接+名称 → https://www.bilibili.com/ 哔哩哔哩&#10;链接+名称（分类） → https://chat.deepseek.com DeepSeek（AI对话）"
         ></textarea>
         <div class="input-footer">
           <span class="link-count" id="linkCount">实时检测 URL…</span>
@@ -97,6 +97,7 @@
         <div class="empty-icon">🔗</div>
         <h3 class="empty-title">还没开始呢</h3>
         <p class="empty-desc">左边粘贴链接，或点「填入示例」快速体验效果</p>
+        <div id="restoreSessionArea"></div>
       </div>
 
       <!-- 分类预览 -->

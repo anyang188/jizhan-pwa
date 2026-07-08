@@ -93,6 +93,45 @@ function clearPersistedState() {
   try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
 }
 
+// 检查是否有可恢复的会话数据
+function checkRestorableSession() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    if (!data || !data.classifiedData || !data.classifiedData.length) return;
+    // 有历史数据，显示恢复按钮
+    var area = $('restoreSessionArea');
+    if (!area) return;
+    area.innerHTML = '<button class="restore-session-btn" id="restoreSessionBtn">📂 恢复上次会话（' + data.parsedCount + ' 个链接）</button>';
+    area.querySelector('#restoreSessionBtn').addEventListener('click', restoreSession);
+  } catch(e) {}
+}
+
+function restoreSession() {
+  var restored = loadState();
+  if (!restored) {
+    showToast('恢复失败，没有找到历史数据');
+    return;
+  }
+  $('siteTitle').value = state.siteTitle;
+  $('siteSubtitle').value = state.siteSubtitle;
+  $('linkCount').textContent = state.parsedCount + ' 个链接已解析';
+  // 隐藏空状态，显示预览
+  $('emptyState').style.display = 'none';
+  $('previewCard').style.display = '';
+  // 应用主题
+  var theme = THEMES.find(function(t) { return t.id === state.currentTheme; });
+  if (theme) applyThemeCSS(theme.css);
+  updatePreviewColors();
+  // 渲染 + 加载检测缓存
+  renderThemes();
+  LinkChecker.checkUrls([], function() {}, function() {
+    renderClassifiedData();
+  });
+  showToast('已恢复上次会话');
+}
+
 // ===== 工具函数 =====
 function $(id) { return document.getElementById(id); }
 function escapeHtml(s) { return HtmlGenerator.escapeHtml(s); }
@@ -1270,7 +1309,7 @@ function generateSingleFile(siteTitle, siteSubtitle, themeColor, themeId) {
 '<div class="search-bar"><div class="search-inner"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜索网址、工具..." autocomplete="off"><span class="search-shortcut">Ctrl+K</span></div></div>\n\n' +
 '<div class="nav-container" id="navContainer"></div>\n\n' +
 '<button class="back-top" id="backTop" title="返回顶部">⬆</button>\n\n' +
-'<footer class="footer"><p>' + escapedTitle + ' &copy; ' + year + '</p><button class="contact-btn" onclick="document.getElementById(\'contactInfo\').classList.toggle(\'show\')">🌐 生成在线版</button><div id="contactInfo" class="contact-info">📞 微信：anyang0188 ｜ 帮你部署导航站到服务器，生成可分享的网页链接</div></footer>\n\n' +
+'<footer class="footer"><p>' + escapedTitle + ' &copy; ' + year + '</p><p style="margin-top:8px;font-size:12px;opacity:0.6;">Powered by <a href="https://anyang0188.github.io/jizhan/" target="_blank" style="color:inherit;">集站</a></p><button class="contact-btn" onclick="document.getElementById(\'contactInfo\').classList.toggle(\'show\')">🌐 生成在线版</button><div id="contactInfo" class="contact-info">📞 微信：anyang0188 ｜ 帮你部署导航站到服务器，生成可分享的网页链接</div></footer>\n\n' +
 '<script>\n' + dataJs + '\n</script>\n' +
 '<script>\n' + appJs + '\n</script>\n' +
 '</body>\n</html>';
@@ -1284,6 +1323,8 @@ function showExportSuccess(html) {
       '<span class="feature-text">点击"复制代码"，然后粘贴到记事本</span></div>' +
       '<div class="feature-item"><span class="feature-icon">💾</span>' +
       '<span class="feature-text">保存为 .html 文件，浏览器打开即可使用</span></div>' +
+      '<div class="feature-item"><span class="feature-icon">🚀</span>' +
+      '<span class="feature-text">放到 GitHub Pages / Vercel / Netlify，免费在线部署</span></div>' +
       '<div class="feature-item"><span class="feature-icon">📖</span>' +
       '<span class="feature-text">点击"使用说明"查看详细教程</span></div>' +
       '<div class="modal-btn-group">' +
@@ -1540,6 +1581,9 @@ function onReset() {
       state.hasParsed = false;
       renderClassifiedData();
       clearPersistedState();
+      // 清除恢复会话按钮
+      var area = $('restoreSessionArea');
+      if (area) area.innerHTML = '';
       showToast('已重置');
     }
   });
@@ -1725,6 +1769,9 @@ function init() {
     if (stats.total === 0 && currentUrls.length > 0) {
       startPreCheck(currentUrls);
     }
+  } else {
+    // 未恢复数据，检查本地是否有缓存可恢复
+    checkRestorableSession();
   }
 
   // 取色器改用动态DOM渲染，无需初始化绑定
